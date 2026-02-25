@@ -1,6 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
 import connectDB from "./config/db.js";
+import authroutes from "./routes/auth.routes.js";
 
 dotenv.config();
 
@@ -10,12 +11,7 @@ const port = process.env.PORT || 3000;
 //middleware
 app.use(express.json());
 
-app.get("/api/health", (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: "api is running fine",
-  });
-});
+app.use("/api/auth", authroutes);
 
 const startServer = async () => {
   await connectDB();
