@@ -1,5 +1,6 @@
 import User from "../models/User.js";
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 
 export const registerUser = async (req, res) => {
   try {
@@ -12,7 +13,7 @@ export const registerUser = async (req, res) => {
       });
     }
 
-    if (password.length  < 6) {
+    if (password.length < 6) {
       return res.status(400).json({
         success: false,
         message: "password must be atleast 6 character ",
@@ -56,5 +57,44 @@ export const registerUser = async (req, res) => {
       success: false,
       message: "Server Error",
     });
+  }
+};
+
+export const login = async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
+
+    const userExist = await User.findOne({ email });
+
+    if (!userExist) {
+      return res.status(400).json({
+        success: false,
+        message: "User does'nt exist please register !",
+      });
+    }
+
+    // 2. Compare password
+    const matchPassword = await bcrypt.compare(password, userExist.password);
+    if (!matchPassword) {
+      return res.status(400).json({
+        success: false,
+        message: "invalid email or password !",
+      });
+    }
+
+    // generate jwt
+    const token = jwt.sign(
+      { id: userExist._id, role: userExist.role },
+      process.env.SECRET_KEY,
+      { expiresIn: "1d" }
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Login Successfully ",
+      token: token,
+    });
+  } catch (error) {
+    console.error("login failed! ", error);
   }
 };
