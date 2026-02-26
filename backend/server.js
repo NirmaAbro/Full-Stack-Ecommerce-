@@ -13,6 +13,7 @@ app.use(express.json());
 
 app.use("/api/auth", authroutes);
 
+
 const startServer = async () => {
   await connectDB();
 
