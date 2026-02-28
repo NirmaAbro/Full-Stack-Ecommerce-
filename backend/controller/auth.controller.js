@@ -4,10 +4,10 @@ import jwt from "jsonwebtoken";
 
 export const registerUser = async (req, res) => {
   try {
-    const { userName, email, password } = req.body;
+    const { name, email, password } = req.body;
 
     // 1️⃣ Validate
-    if (!userName || !email || !password) {
+    if (!name || !email || !password) {
       return res.status(400).json({
         success: false,
         message: "All fields are required",
@@ -28,7 +28,7 @@ export const registerUser = async (req, res) => {
 
     // 4️⃣ Create user
     const user = await User.create({
-      userName,
+      name,
       email,
       password: hashedPassword,
       role: "user", // backend controlled
@@ -40,12 +40,13 @@ export const registerUser = async (req, res) => {
       message: "User registered successfully",
       user: {
         id: user._id,
-        userName: user.userName,
+        name: user.name,
         email: user.email,
         role: user.role,
       },
     });
   } catch (error) {
+    console.log(error);
     res.status(500).json({
       success: false,
       message: "Server error",
