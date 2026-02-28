@@ -81,11 +81,73 @@ export const getAllProducts = async (req, res) => {
       count: products.length,
       data: products,
     });
-
   } catch (error) {
     res.status(500).json({
       success: false,
       message: "Server Error",
+    });
+  }
+};
+
+export const updateProduct = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const findProduct = await product.findById(id);
+
+    if (!findProduct) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found",
+      });
+    }
+
+    findProduct.name = req.body.name ?? findProduct.name;
+    findProduct.description = req.body.description ?? findProduct.description;
+    findProduct.price = req.body.price ?? findProduct.price;
+    findProduct.category = req.body.category ?? findProduct.category;
+    findProduct.stock = req.body.stock ?? findProduct.stock;
+
+    const updatedProduct = await findProduct.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Product updated successfully",
+      data: updatedProduct,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+};
+
+export const deleteProduct = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const findProduct = await product.findById(id);
+
+    if (!findProduct) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found",
+      });
+    }
+
+    await findProduct.deleteOne();
+
+    res.status(200).json({
+      success: true,
+      message: "Product deleted successfully",
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
     });
   }
 };
