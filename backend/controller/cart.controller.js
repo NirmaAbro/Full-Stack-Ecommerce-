@@ -201,3 +201,88 @@ export const clearCart = async (req, res) => {
 };
 
 
+export const updateCartQuantity = async (req, res) => {
+  try {
+    const { productId } = req.params;
+    const { quantity } = req.body;
+
+    // 1️⃣ Validate quantity
+    const newQty = Number(quantity);
+
+    if (!newQty || isNaN(newQty) || newQty <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Quantity must be greater than 0",
+      });
+    }
+
+    // 2️⃣ Find cart
+    const cart = await Cart.findOne({ user: req.user.id });
+
+    if (!cart) {
+      return res.status(404).json({
+        success: false,
+        message: "Cart not found",
+      });
+    }
+
+    // 3️⃣ Find item inside cart
+    const item = cart.items.find(
+      (item) => item.product.toString() === productId
+    );
+
+    if (!item) {
+      return res.status(404).json({
+        success: false,
+        message: "Item not found in cart",
+      });
+    }
+
+    // 4️⃣ Get latest product info
+    const product = await Product.findById(productId);
+
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Product no longer exists",
+      });
+    }
+
+    // 5️⃣ Check stock
+    if (newQty > product.stock) {
+      return res.status(400).json({
+        success: false,
+        message: "Requested quantity exceeds stock",
+      });
+    }
+
+    // 6️⃣ Update quantity
+    item.quantity = newQty;
+
+    // 7️⃣ Optional (Industry-level smart move)
+    // Update price if product price changed
+    item.price = product.price;
+
+    // 8️⃣ Recalculate total price
+    cart.totalPrice = cart.items.reduce(
+      (acc, item) => acc + item.price * item.quantity,
+      0
+    );
+
+    // 9️⃣ Save cart
+    await cart.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Cart updated successfully",
+      items: cart.items,
+      totalPrice: cart.totalPrice,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
