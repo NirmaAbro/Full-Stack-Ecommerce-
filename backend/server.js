@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import connectDB from "./config/db.js";
 import authroutes from "./routes/auth.routes.js";
 import productroutes from "./routes/product.routes.js";
+import cartroutes from "./routes/cart.routes.js";
 
 dotenv.config();
 
@@ -14,6 +15,7 @@ app.use(express.json());
 
 app.use("/api/auth", authroutes);
 app.use("/api/product", productroutes);
+app.use("/api/cart", cartroutes);
 
 const startServer = async () => {
   await connectDB();
