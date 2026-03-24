@@ -31,7 +31,8 @@ export const registerUser = async (req, res) => {
       name,
       email,
       password: hashedPassword,
-      role: "user", // backend controlled
+      // role: "user", // backend controlled
+      role: req.body.role || "user",
     });
 
     // 5️⃣ Response

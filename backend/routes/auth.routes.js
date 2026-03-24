@@ -5,7 +5,7 @@ import { protectRoute } from "../middleware/auth.middleware.js";
 const router = express.Router();
 
 router.post("/register", registerUser);
-router.get("/login", login);
+router.post("/login", login);
 router.get("/profile", protectRoute, (req, res) => {
   res.json({
     success: true,
